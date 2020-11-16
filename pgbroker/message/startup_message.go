@@ -65,8 +65,8 @@ func ReadStartupMessage(raw []byte) (Reader, error) {
 		return req, nil
 	}
 
-	if majorVersion := code >> 16; majorVersion < 3 {
-		return nil, errors.New("pg protocol < 3.0 is not supported")
+	if majorVersion := code >> 16; majorVersion != 3 {
+		return nil, errors.New("pg protocol != 3.0 is not supported")
 	}
 
 	startup := &StartupMessage{ProtocolVersion: code, Parameters: make(map[string]string)}
