@@ -38,6 +38,7 @@ type HandleParseComplete func(ms *Ctx, msg *message.ParseComplete) (*message.Par
 type HandlePortalSuspended func(ms *Ctx, msg *message.PortalSuspended) (*message.PortalSuspended, error)
 type HandleReadyForQuery func(ms *Ctx, msg *message.ReadyForQuery) (*message.ReadyForQuery, error)
 type HandleRowDescription func(ms *Ctx, msg *message.RowDescription) (*message.RowDescription, error)
+type HandleServerOther func(ms *Ctx, msg *message.Raw) (*message.Raw, error)
 
 type ServerMessageHandlers struct {
 	m                                     map[byte]MessageHandler
@@ -75,6 +76,7 @@ type ServerMessageHandlers struct {
 	handleRowDescription                  []HandleRowDescription
 	handleCopyData                        []HandleCopyData
 	handleCopyDone                        []HandleCopyDone
+	handleServerOther                     []HandleServerOther
 }
 
 func NewServerMessageHandlers() *ServerMessageHandlers {
@@ -85,6 +87,8 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 	if handler, ok := s.m[b]; ok {
 		return handler
 	}
+
+	s.m[b] = nil
 	switch b {
 	case 'R':
 		s.m[b] = func(md *Ctx, raw []byte) (message.Reader, error) {
@@ -174,7 +178,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return nil, errors.New("fail to cast authentication message")
 		}
-		return s.m[b]
 	case 'K':
 		if len(s.handleBackendKeyData) == 0 {
 			s.m[b] = nil
@@ -190,7 +193,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case '2':
 		if len(s.handleBindComplete) == 0 {
 			s.m[b] = nil
@@ -206,7 +208,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case '3':
 		if len(s.handleCloseComplete) == 0 {
 			s.m[b] = nil
@@ -222,7 +223,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'C':
 		if len(s.handleCommandComplete) == 0 {
 			s.m[b] = nil
@@ -238,7 +238,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'G':
 		if len(s.handleCopyInResponse) == 0 {
 			s.m[b] = nil
@@ -254,7 +253,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'H':
 		if len(s.handleCopyOutResponse) == 0 {
 			s.m[b] = nil
@@ -270,7 +268,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'W':
 		if len(s.handleCopyBothResponse) == 0 {
 			s.m[b] = nil
@@ -286,7 +283,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'D':
 		if len(s.handleDataRow) == 0 {
 			s.m[b] = nil
@@ -302,7 +298,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'I':
 		if len(s.handleEmptyQueryResponse) == 0 {
 			s.m[b] = nil
@@ -318,7 +313,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'E':
 		if len(s.handleErrorResponse) == 0 {
 			s.m[b] = nil
@@ -334,7 +328,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'V':
 		if len(s.handleFunctionCallResponse) == 0 {
 			s.m[b] = nil
@@ -350,7 +343,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'v':
 		if len(s.handleNegotiateProtocolVersion) == 0 {
 			s.m[b] = nil
@@ -366,7 +358,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'n':
 		if len(s.handleNoData) == 0 {
 			s.m[b] = nil
@@ -382,7 +373,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'N':
 		if len(s.handleNoticeResponse) == 0 {
 			s.m[b] = nil
@@ -398,7 +388,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'A':
 		if len(s.handleNotificationResponse) == 0 {
 			s.m[b] = nil
@@ -414,7 +403,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 't':
 		if len(s.handleParameterDescription) == 0 {
 			s.m[b] = nil
@@ -430,7 +418,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'S':
 		if len(s.handleParameterStatus) == 0 {
 			s.m[b] = nil
@@ -446,7 +433,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case '1':
 		if len(s.handleParseComplete) == 0 {
 			s.m[b] = nil
@@ -462,7 +448,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 's':
 		if len(s.handlePortalSuspended) == 0 {
 			s.m[b] = nil
@@ -478,7 +463,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'Z':
 		if len(s.handleReadyForQuery) == 0 {
 			s.m[b] = nil
@@ -494,7 +478,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'T':
 		if len(s.handleRowDescription) == 0 {
 			s.m[b] = nil
@@ -510,7 +493,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'd':
 		if len(s.handleCopyData) == 0 {
 			s.m[b] = nil
@@ -526,7 +508,6 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	case 'c':
 		if len(s.handleCopyDone) == 0 {
 			s.m[b] = nil
@@ -542,9 +523,25 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 			}
 			return msg, err
 		}
-		return s.m[b]
 	}
-	return nil
+
+	if s.m[b] == nil {
+		if len(s.handleServerOther) == 0 {
+			return nil
+		}
+		s.m[b] = func(md *Ctx, raw []byte) (message.Reader, error) {
+			var err error
+			msg := message.ReadRaw(b, raw)
+			for _, h := range s.handleServerOther {
+				if msg, err = h(md, msg); err != nil {
+					break
+				}
+			}
+			return msg, err
+		}
+	}
+
+	return s.m[b]
 }
 
 func (s *ServerMessageHandlers) AddHandleAuthenticationOk(h HandleAuthenticationOk) {
@@ -750,4 +747,10 @@ func (s *ServerMessageHandlers) AddHandleCopyDone(h HandleCopyDone) {
 		return
 	}
 	s.handleCopyDone = append(s.handleCopyDone, h)
+}
+func (s *ServerMessageHandlers) AddHandleServerOther(h HandleServerOther) {
+	if h == nil {
+		return
+	}
+	s.handleServerOther = append(s.handleServerOther, h)
 }
