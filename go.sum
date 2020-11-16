@@ -1,0 +1,10 @@
+github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
+github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
+github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
+github.com/lfittl/pg_query_go v1.0.1 h1:OEoPkNz0WI8l+T/uH/RfsZAqqnECD+CxIaUCOd//nXA=
+github.com/lfittl/pg_query_go v1.0.1/go.mod h1:Ch/Oiv5pRI5jf9M7Hvf0XwCvFwa4PWRcNoFcLtVU8pc=
+github.com/rueian/pgbroker v0.0.15 h1:IhP8PePNT+nQgayRJ+8JFrBbzF3VJBH+OE5ahK3eWSY=
+github.com/rueian/pgbroker v0.0.15/go.mod h1:uxedndRlugYpGkW+WgFj2bXEZ5An1kSSwyPwqqldtLQ=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v2 v2.3.0 h1:clyUAQHOM3G0M3f5vQj7LuJrETvjVot3Z5el9nffUtU=
+gopkg.in/yaml.v2 v2.3.0/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=

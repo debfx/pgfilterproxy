@@ -1,0 +1,6 @@
+listen: ":54321"
+target_server: localhost:5432
+allowed_fingerprints:
+  - 02a281c251c3a43d2fe7457dff01f76c5cc523f8c8
+allowed_commands:
+  - X
