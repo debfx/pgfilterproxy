@@ -36,7 +36,7 @@ func main() {
 	if len(os.Args) == 2 {
 		configPath = os.Args[1]
 	} else {
-		configPath = "config.yaml"
+		configPath = "pgfilterproxy.yaml"
 	}
 
 	if err := loadConfig(configPath); err != nil {
