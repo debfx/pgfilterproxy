@@ -24,7 +24,9 @@ func sanitizeQueryStr(queryString string) string {
 func generateErrorQuery(msg string) string {
 	// return a query that triggers an error on the server that contains our
 	// desired error message
-	return fmt.Sprintf("'%s';", strings.Replace(msg, "'", "''", -1))
+	escapedMsg := strings.Replace(msg, "'", "''", -1)
+	escapedMsg = strings.Replace(escapedMsg, `\`, `\\`, -1)
+	return fmt.Sprintf("'%s';", escapedMsg)
 }
 
 func main() {
