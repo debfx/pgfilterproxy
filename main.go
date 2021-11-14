@@ -102,7 +102,6 @@ func main() {
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
-	//<-sigs
 	for {
 		signal := <-sigs
 		if signal == syscall.SIGHUP {
@@ -112,6 +111,7 @@ func main() {
 				fmt.Println("reloaded config")
 			}
 		} else {
+			fmt.Println("shuting down")
 			break
 		}
 	}
