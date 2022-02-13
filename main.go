@@ -9,7 +9,7 @@ import (
 	"strings"
 	"syscall"
 
-	pg_query "github.com/lfittl/pg_query_go"
+	pg_query "github.com/pganalyze/pg_query_go"
 	"github.com/rueian/pgbroker/backend"
 	"github.com/rueian/pgbroker/message"
 	"github.com/rueian/pgbroker/proxy"
