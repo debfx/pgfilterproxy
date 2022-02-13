@@ -9,7 +9,7 @@ import (
 	"strings"
 	"syscall"
 
-	pg_query "github.com/pganalyze/pg_query_go"
+	pg_query "github.com/pganalyze/pg_query_go/v2"
 	"github.com/rueian/pgbroker/backend"
 	"github.com/rueian/pgbroker/message"
 	"github.com/rueian/pgbroker/proxy"
@@ -50,7 +50,7 @@ func main() {
 
 	clientMessageHandlers := proxy.NewClientMessageHandlers()
 	clientMessageHandlers.AddHandleQuery(func(ctx *proxy.Ctx, msg *message.Query) (query *message.Query, e error) {
-		fingerprint, err := pg_query.FastFingerprint(msg.QueryString)
+		fingerprint, err := pg_query.Fingerprint(msg.QueryString)
 		if err != nil {
 			fmt.Printf("failed to parse query: %v: %s\n", err, sanitizeQueryStr(msg.QueryString))
 
