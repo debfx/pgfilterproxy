@@ -1,6 +1,12 @@
 listen: ":54321"
 target_server: localhost:5432
+
+# allow queries that match these fingerprints
 allowed_fingerprints:
   - 02a281c251c3a43d2fe7457dff01f76c5cc523f8c8
+
+# allow message formats (first byte of message) in addition to query (Q)
+# https://www.postgresql.org/docs/current/protocol-message-formats.html
 allowed_commands:
+  # terminate connection
   - X
