@@ -111,7 +111,7 @@ func main() {
 				fmt.Println("reloaded config")
 			}
 		} else {
-			fmt.Println("shuting down")
+			fmt.Println("shutting down")
 			break
 		}
 	}
