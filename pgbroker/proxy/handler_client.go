@@ -25,6 +25,7 @@ type HandleClientOther func(md *Ctx, msg *message.Raw) (*message.Raw, error)
 
 type ClientMessageHandlers struct {
 	m                         map[byte]MessageHandler
+	other                     MessageHandlerOther
 	handleBind                []HandleBind
 	handleClose               []HandleClose
 	handleCopyFail            []HandleCopyFail
@@ -50,11 +51,44 @@ func NewClientMessageHandlers() *ClientMessageHandlers {
 }
 
 func (s *ClientMessageHandlers) GetHandler(b byte) MessageHandler {
-	if handler, ok := s.m[b]; ok {
+	handler, found := s.m[b]
+	if found {
 		return handler
 	}
 
+	if s.other != nil {
+		return func(md *Ctx, raw []byte) (message.Reader, error) {
+			return s.other(md, b, raw)
+		}
+	}
+
+	return nil
+}
+
+func (s *ClientMessageHandlers) init() {
+	if len(s.handleClientOther) == 0 {
+		s.other = nil
+	} else {
+		s.other = func(md *Ctx, b byte, raw []byte) (message.Reader, error) {
+			var err error
+			msg := message.ReadRaw(b, raw)
+			for _, h := range s.handleClientOther {
+				if msg, err = h(md, msg); err != nil {
+					break
+				}
+			}
+			return msg, err
+		}
+	}
+
+	for _, b := range []byte{'B', 'C', 'f', 'D', 'E', 'H', 'F', 'P', 'Q', 'S', 'X', 'd', 'c', 'p'} {
+		s.initHandler(b)
+	}
+}
+
+func (s *ClientMessageHandlers) initHandler(b byte) {
 	s.m[b] = nil
+
 	switch b {
 	case 'B':
 		if len(s.handleBind) == 0 {
@@ -279,23 +313,11 @@ func (s *ClientMessageHandlers) GetHandler(b byte) MessageHandler {
 		}
 	}
 
-	if s.m[b] == nil {
-		if len(s.handleClientOther) == 0 {
-			return nil
-		}
+	if s.m[b] == nil && s.other != nil {
 		s.m[b] = func(md *Ctx, raw []byte) (message.Reader, error) {
-			var err error
-			msg := message.ReadRaw(b, raw)
-			for _, h := range s.handleClientOther {
-				if msg, err = h(md, msg); err != nil {
-					break
-				}
-			}
-			return msg, err
+			return s.other(md, b, raw)
 		}
 	}
-
-	return s.m[b]
 }
 
 func (s *ClientMessageHandlers) AddHandleBind(h HandleBind) {

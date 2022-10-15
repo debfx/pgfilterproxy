@@ -42,6 +42,7 @@ type HandleServerOther func(ms *Ctx, msg *message.Raw) (*message.Raw, error)
 
 type ServerMessageHandlers struct {
 	m                                     map[byte]MessageHandler
+	other                                 MessageHandlerOther
 	handleAuthenticationOk                []HandleAuthenticationOk
 	handleAuthenticationKerberosV5        []HandleAuthenticationKerberosV5
 	handleAuthenticationCleartextPassword []HandleAuthenticationCleartextPassword
@@ -84,11 +85,44 @@ func NewServerMessageHandlers() *ServerMessageHandlers {
 }
 
 func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
-	if handler, ok := s.m[b]; ok {
+	handler, found := s.m[b]
+	if found {
 		return handler
 	}
 
+	if s.other != nil {
+		return func(md *Ctx, raw []byte) (message.Reader, error) {
+			return s.other(md, b, raw)
+		}
+	}
+
+	return nil
+}
+
+func (s *ServerMessageHandlers) init() {
+	if len(s.handleServerOther) == 0 {
+		s.other = nil
+	} else {
+		s.other = func(md *Ctx, b byte, raw []byte) (message.Reader, error) {
+			var err error
+			msg := message.ReadRaw(b, raw)
+			for _, h := range s.handleServerOther {
+				if msg, err = h(md, msg); err != nil {
+					break
+				}
+			}
+			return msg, err
+		}
+	}
+
+	for _, b := range []byte{'R', 'K', '2', '3', 'C', 'G', 'H', 'W', 'D', 'I', 'E', 'V', 'v', 'n', 'N', 'A', 't', 'S', '1', 's', 'Z', 'T', 'd', 'c'} {
+		s.initHandler(b)
+	}
+}
+
+func (s *ServerMessageHandlers) initHandler(b byte) {
 	s.m[b] = nil
+
 	switch b {
 	case 'R':
 		s.m[b] = func(md *Ctx, raw []byte) (message.Reader, error) {
@@ -525,23 +559,11 @@ func (s *ServerMessageHandlers) GetHandler(b byte) MessageHandler {
 		}
 	}
 
-	if s.m[b] == nil {
-		if len(s.handleServerOther) == 0 {
-			return nil
-		}
+	if s.m[b] == nil && s.other != nil {
 		s.m[b] = func(md *Ctx, raw []byte) (message.Reader, error) {
-			var err error
-			msg := message.ReadRaw(b, raw)
-			for _, h := range s.handleServerOther {
-				if msg, err = h(md, msg); err != nil {
-					break
-				}
-			}
-			return msg, err
+			return s.other(md, b, raw)
 		}
 	}
-
-	return s.m[b]
 }
 
 func (s *ServerMessageHandlers) AddHandleAuthenticationOk(h HandleAuthenticationOk) {
