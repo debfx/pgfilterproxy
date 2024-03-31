@@ -1,4 +1,4 @@
-FROM golang:1.19-bullseye AS builder
+FROM golang:1.22-bookworm AS builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY pgbroker/ ./pgbroker/
 RUN go build -o /pgfilterproxy
 
 
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 COPY --from=builder /pgfilterproxy /pgfilterproxy
 
