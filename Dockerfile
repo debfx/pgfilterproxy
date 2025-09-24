@@ -1,4 +1,4 @@
-FROM golang:1.22-bookworm AS builder
+FROM golang:1.25.1-trixie AS builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY pgbroker/ ./pgbroker/
 RUN go build -o /pgfilterproxy
 
 
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 COPY --from=builder /pgfilterproxy /pgfilterproxy
 
