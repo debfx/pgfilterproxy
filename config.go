@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"sync"
 
 	"gopkg.in/yaml.v2"
@@ -29,7 +29,7 @@ var (
 )
 
 func loadConfig(path string) error {
-	file, err := ioutil.ReadFile(path)
+	file, err := os.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("failed to read config: %w", err)
 	}

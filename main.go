@@ -16,16 +16,16 @@ import (
 )
 
 func sanitizeQueryStr(queryString string) string {
-	sanitizedQueryStr := strings.Replace(queryString, "\n", " ", -1)
-	sanitizedQueryStr = strings.Replace(sanitizedQueryStr, "\r", "", -1)
+	sanitizedQueryStr := strings.ReplaceAll(queryString, "\n", " ")
+	sanitizedQueryStr = strings.ReplaceAll(sanitizedQueryStr, "\r", "")
 	return sanitizedQueryStr
 }
 
 func generateErrorQuery(msg string) string {
 	// return a query that triggers an error on the server that contains our
 	// desired error message
-	escapedMsg := strings.Replace(msg, "'", "''", -1)
-	escapedMsg = strings.Replace(escapedMsg, `\`, `\\`, -1)
+	escapedMsg := strings.ReplaceAll(msg, "'", "''")
+	escapedMsg = strings.ReplaceAll(escapedMsg, `\`, `\\`)
 	return fmt.Sprintf("'%s';", escapedMsg)
 }
 
